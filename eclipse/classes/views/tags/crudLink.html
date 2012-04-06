@@ -1,0 +1,26 @@
+%{
+    if (!_url) {
+	    def action = play.mvc.Http.Request.current().action.tokenize('.')[1]
+	    _url = actionBridge."$action"()
+	    if (play.mvc.Scope.Params.current().get('id') != null) _url = _url.add('id', play.mvc.Scope.Params.current().get('id'))
+	}
+    if (_page) _url = _url.add('page', _page)
+    if (_orderBy && _order) {
+        _url = _url.add('orderBy', _orderBy).add('order', _order)
+    } else if (_caller.orderBy && _caller.order) {
+        _url = _url.add('orderBy', _caller.orderBy).add('order', _caller.order)
+    } else {
+        orderBy = play.mvc.Scope.Params.current().get('orderBy')
+        order = play.mvc.Scope.Params.current().get('order')
+        if (orderBy && order) {
+            _url = _url.add('orderBy', orderBy).add('order', order)
+        }
+    }
+    if (!_filters) {
+        _filters = play.mvc.Scope.Params.current().get('filters', java.util.Map)
+    }
+    _url = _filters.inject(_url) { 
+        previousUrl, entry -> previousUrl.add('filters.'+entry.key, entry.value) 
+    }
+}%
+#{a _url, class:_class, id:_id}${_lib}#{/a}

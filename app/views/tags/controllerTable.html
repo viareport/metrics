@@ -1,0 +1,22 @@
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th>Count</th>
+            <th>Mean</th>
+            <th>Min</th>
+            <th>Max</th>
+        </tr>
+    </thead>
+    <tbody>
+        #{list items:_controller, as:'action'}
+        <tr>
+            <th>${action.getKey()}</th>
+            <td>${action.getValue().get(0)}</td>
+            <td>${action.getValue().get(1)}</td>
+            <td>${action.getValue().get(2)}</td>
+            <td>${action.getValue().get(3)}</td>
+        </tr>
+        #{/list}
+    </tbody>
+</table>

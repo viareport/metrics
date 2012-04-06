@@ -1,0 +1,11 @@
+#{extends "main.html"/}
+#{set title: "Metrics"/}
+
+<div id="content">
+#{list items: controllers, as: 'controller'}
+    #{block title:controller.getKey()}
+        #{controllerTable controller:controller.getValue() /}
+    #{/block}
+#{/list}
+
+</div>

@@ -1,0 +1,20 @@
+self: inativ -> metrics 0.1
+
+require:
+    - play 1.2.4
+    - inativ -> crudtools [0.1.2,)
+    - inativ -> accesscontrol [0.3.2,)
+
+repositories:
+    - inativ:
+        type: chain
+        using:
+             - inativCentral:
+                 type: http
+                 artifact:  "http://devtoulouse.viareportdomain.com/repository/[module]-[revision].zip"
+             - inativLocal:
+                 type: local
+                 descriptor: ${application.path}/../[module]/conf/dependencies.yml
+                 artifact : ${application.path}/../[module]
+        contains:
+             - inativ -> *
