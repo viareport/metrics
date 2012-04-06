@@ -1,0 +1,8 @@
+*.pyc
+dist/*
+.classpath
+.project
+.settings/*
+eclipse/*
+modules/*
+bin/*

@@ -6,14 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
+import play.mvc.Controller;
+import play.mvc.With;
+
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Metric;
 import com.yammer.metrics.core.MetricName;
 import com.yammer.metrics.core.MetricsRegistry;
 import com.yammer.metrics.core.Timer;
 
-import play.mvc.Controller;
-
+@With(AccessControl.class)
 public class ActionMetrics extends Controller {
     @Perm("View Controller Metrics")
     public static void index() {

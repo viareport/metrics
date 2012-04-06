@@ -1,6 +1,0 @@
-<input type="hidden" name="orderBy" value="${params.get('orderBy')}" />
-<input type="hidden" name="order" value="${params.get('order')}" />
-<input type="hidden" name="page" value="${params.get('page')}" />
-%{ params.get('filters', java.util.Map).each { k, v -> }%
-    <input type="hidden" name="filters.${k}" value="${v}" />
-%{ } }%
