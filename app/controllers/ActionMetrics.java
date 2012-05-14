@@ -15,6 +15,9 @@ import com.yammer.metrics.core.MetricName;
 import com.yammer.metrics.core.MetricsRegistry;
 import com.yammer.metrics.core.Timer;
 
+import controllers.accesscontrol.AccessControl;
+import controllers.accesscontrol.Perm;
+
 @With(AccessControl.class)
 public class ActionMetrics extends Controller {
     @Perm("View Controller Metrics")
