@@ -1,8 +1,9 @@
 self: inativ -> metrics 0.2.1
 
 require:
-    - play 1.2.4
+    - play 1.2.4.1-viareport
     - inativ -> inativ_play_utils 0.1.1
+    - com.yammer.metrics -> metrics-core 3.0.0-SNAPSHOT
 
 repositories:
     - inativ:
@@ -17,3 +18,8 @@ repositories:
                  artifact : ${application.path}/../[module]
         contains:
              - inativ -> *
+    - inativMaven:
+        type: iBiblio
+        root: http://devtoulouse.viareportdomain.com/mvn_repository/
+        contains:
+            - com.yammer.metrics -> metrics-core
