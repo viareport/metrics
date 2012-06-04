@@ -4,7 +4,6 @@
 
     <property environment="env"/>
     <property name="play.path" value="${env.PLAY_PATH}"/>
-    <import file="${play.path}/resources/application-build.xml"/>
     <import file="${play.path}/resources/inativ-build.xml"/>
 
     <target name="check" unless="play.path">
@@ -51,4 +50,5 @@
         </javac>
     </target>
 
+    <target name="js-test"/>
 </project>
