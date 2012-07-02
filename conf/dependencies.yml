@@ -1,8 +1,8 @@
-self: inativ -> metrics 0.2.3
+self: inativ -> metrics 1.1.0-1
 
 require:
     - play 1.2.4.3-viareport
-    - inativ -> inativ_play_utils 0.1.7
+    - inativ -> inativ_play_utils 1.0.0-8
     - com.yammer.metrics -> metrics-core 3.0.0-SNAPSHOT
 
 repositories:
