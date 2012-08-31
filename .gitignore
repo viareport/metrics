@@ -6,3 +6,4 @@ dist/*
 eclipse/*
 modules/*
 bin/*
+lib/*
