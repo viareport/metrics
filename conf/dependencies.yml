@@ -1,25 +1,8 @@
-self: inativ -> metrics 1.1.0-2
+self: inativ -> metrics 1.2.0
 
 require:
-    - play 1.2.5-viareport
-    - inativ -> inativ_play_utils 1.0.0-RC15
-    - com.yammer.metrics -> metrics-core 3.0.0-SNAPSHOT
+    - play [1.2.5,)
+    - com.codahale.metrics -> metrics-core 3.0.0-BETA3
+    - com.google.guava -> guava 13.0.1
+    - com.googlecode.lambdaj -> lambdaj 2.3.3
 
-repositories:
-    - inativ:
-        type: chain
-        using:
-             - inativCentral:
-                 type: http
-                 artifact:  "http://devtoulouse.viareportdomain.com/repository/[module]-[revision].zip"
-             - inativLocal:
-                 type: local
-                 descriptor: ${application.path}/../[module]/conf/dependencies.yml
-                 artifact : ${application.path}/../[module]
-        contains:
-             - inativ -> *
-    - inativMaven:
-        type: iBiblio
-        root: http://devtoulouse.viareportdomain.com/mvn_repository/
-        contains:
-            - com.yammer.metrics -> metrics-core

@@ -1,21 +1,22 @@
 package play.modules.metrics;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
 import play.Play;
 import play.PlayPlugin;
 import play.classloading.ApplicationClasses.ApplicationClass;
-import play.modules.metrics.MetricsPlugin.TimerFactory;
 
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.MetricName;
-import com.yammer.metrics.core.Timer;
-import com.yammer.metrics.core.TimerContext;
+import com.codahale.metrics.CsvReporter;
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import com.codahale.metrics.Timer.Context;
 
 public class MetricsPlugin extends PlayPlugin {
     public static class TimerFactory {
@@ -27,14 +28,15 @@ public class MetricsPlugin extends PlayPlugin {
         }
 
         public Timer createTimer(String group, String type, String timerName) {
-            return Metrics.newTimer(new MetricName(group, type, timerName), TimeUnit.MILLISECONDS, TimeUnit.SECONDS);
+            return PLUGIN_REGISTRY.timer(timerName);
         }
     }
     
     private final static Map<String, Timer> reponseTimers = new HashMap<String, Timer>();
     private final static Map<String, Timer> methodTimers = new HashMap<String, Timer>();
-    protected static ThreadLocal<TimerContext> reponseTimerContext = new ThreadLocal<TimerContext>();
-    protected static ThreadLocal<LinkedList<TimerContext>> methodTimerContexts = new ThreadLocal<LinkedList<TimerContext>>();
+    private static final MetricRegistry PLUGIN_REGISTRY = new MetricRegistry();
+    protected static ThreadLocal<Context> reponseTimerContext = new ThreadLocal<Context>();
+    protected static ThreadLocal<LinkedList<Context>> methodTimerContexts = new ThreadLocal<LinkedList<Context>>();
     protected static ThreadLocal<Integer> callDepth = new ThreadLocal<Integer>();
     
     private static TimerFactory TIMER_FACTORY;
@@ -42,6 +44,14 @@ public class MetricsPlugin extends PlayPlugin {
     @Override
     public void onApplicationStart() {
         initTimerFactory();
+        JmxReporter reporter = JmxReporter.forRegistry(PLUGIN_REGISTRY).build();
+        final CsvReporter csvReporter = CsvReporter.forRegistry(PLUGIN_REGISTRY)
+            .formatFor(Locale.US)
+            .convertRatesTo(TimeUnit.SECONDS)
+            .convertDurationsTo(TimeUnit.MILLISECONDS)
+            .build(new File("metrics/"));
+        csvReporter.start(1, TimeUnit.SECONDS);
+        reporter.start();
 //        System.out.println("Metrics starts");
     }
 
@@ -77,7 +87,7 @@ public class MetricsPlugin extends PlayPlugin {
     
     @Override
     public void afterActionInvocation() {
-        TimerContext responseTimerCtx = reponseTimerContext.get();
+        Context responseTimerCtx = reponseTimerContext.get();
         
         if (responseTimerCtx != null)
             responseTimerCtx.stop();
@@ -86,8 +96,8 @@ public class MetricsPlugin extends PlayPlugin {
     @Override
     public void enhance(ApplicationClass applicationClass) throws Exception {
 //        new MetricsModelEnhancer().enhanceThisClass(applicationClass);
-//        new MetricAnnotationEnhancer().enhanceThisClass(applicationClass);
-//        new MetricsAllEnhancer().enhanceThisClass(applicationClass);
+          new MetricAnnotationEnhancer().enhanceThisClass(applicationClass);
+          //new MetricsAllEnhancer().enhanceThisClass(applicationClass);
     }
     
     private static String getIndentation(int depth) {
@@ -100,12 +110,12 @@ public class MetricsPlugin extends PlayPlugin {
     
     public static void enableTimer(String group, String type, String timerName) {
         int currentCallDepth = getCallDepth();
-        System.out.println(getIndentation(currentCallDepth) + "->Start::"+ timerName);
+        //System.out.println(getIndentation(currentCallDepth) + "->Start::"+ timerName);
 //        System.out.println("Activating metrics timer " + timerName);
         Timer timer = getTimer(group, type, timerName, methodTimers);
-        LinkedList<TimerContext> timerContexts =  methodTimerContexts.get();
+        LinkedList<Context> timerContexts =  methodTimerContexts.get();
         if (timerContexts == null) {
-            timerContexts = new LinkedList<TimerContext>();
+            timerContexts = new LinkedList<Context>();
             methodTimerContexts.set(timerContexts);
 //            System.out.println("Metrics timer activated " + timerName);
         }
@@ -125,12 +135,16 @@ public class MetricsPlugin extends PlayPlugin {
     
     public static void stopTimer(String timerName) {
         int currentCallDepth = getCallDepth();
-        System.out.println(getIndentation(--currentCallDepth) + "->Stop::"+ timerName);
-        LinkedList<TimerContext> timerContexts =  methodTimerContexts.get();
+       // System.out.println(getIndentation(--currentCallDepth) + "->Stop::"+ timerName);
+        LinkedList<Context> timerContexts =  methodTimerContexts.get();
         if (timerContexts != null) {
             timerContexts.pop().stop();
 //            System.out.println("Metrics timer stopped");
         }
         callDepth.set(currentCallDepth);
+    }
+
+    public static MetricRegistry getRegistry() {
+        return PLUGIN_REGISTRY;
     }
 }

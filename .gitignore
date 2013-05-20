@@ -6,4 +6,5 @@ dist/*
 eclipse/*
 modules/*
 bin/*
-lib/*
+lib
+tmp

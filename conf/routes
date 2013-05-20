@@ -5,5 +5,5 @@
 #
 # ~~~~
 
-GET     /metrics/                      ActionMetrics.index
-GET     /metrics                       ActionMetrics.index
+GET     /metrics/                   ActionMetrics.index
+GET     /metrics                    ActionMetrics.index
