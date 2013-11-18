@@ -1,12 +1,13 @@
 package play.modules.metrics;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang.StringUtils;
 
 import play.Play;
 import play.PlayPlugin;
@@ -20,77 +21,36 @@ import com.codahale.metrics.Timer.Context;
 
 public class MetricsPlugin extends PlayPlugin {
     public static class TimerFactory {
-        
+
         private String appNameSpace;
 
         public TimerFactory(String appNameSpace) {
             this.appNameSpace = appNameSpace;
         }
 
-        public Timer createTimer(String group, String type, String timerName) {
-            return PLUGIN_REGISTRY.timer(timerName);
-        }
     }
-    
-    private final static Map<String, Timer> reponseTimers = new HashMap<String, Timer>();
-    private final static Map<String, Timer> methodTimers = new HashMap<String, Timer>();
-    private static final MetricRegistry PLUGIN_REGISTRY = new MetricRegistry();
-    protected static ThreadLocal<Context> reponseTimerContext = new ThreadLocal<Context>();
+
+    public static final MetricRegistry PLUGIN_REGISTRY = new MetricRegistry();
     protected static ThreadLocal<LinkedList<Context>> methodTimerContexts = new ThreadLocal<LinkedList<Context>>();
     protected static ThreadLocal<Integer> callDepth = new ThreadLocal<Integer>();
-    
-    private static TimerFactory TIMER_FACTORY;
+
     
     @Override
     public void onApplicationStart() {
-        initTimerFactory();
         JmxReporter reporter = JmxReporter.forRegistry(PLUGIN_REGISTRY).build();
         final CsvReporter csvReporter = CsvReporter.forRegistry(PLUGIN_REGISTRY)
             .formatFor(Locale.US)
             .convertRatesTo(TimeUnit.SECONDS)
             .convertDurationsTo(TimeUnit.MILLISECONDS)
             .build(new File("metrics/"));
-        csvReporter.start(1, TimeUnit.SECONDS);
+        csvReporter.start(100, TimeUnit.MILLISECONDS);
         reporter.start();
-//        System.out.println("Metrics starts");
+        csvReporter.stop();
     }
 
-    private static void initTimerFactory() {
-        String applicationName = Play.applicationPath.toString().replace("/", ".");
-        TIMER_FACTORY = new TimerFactory(applicationName);
-    }
-    
-    @Override
-    public void beforeActionInvocation(Method actionMethod) {
-        String actionName = actionMethod.getName();
-        Timer responseTimer = getTimer("inativ.com.requests.timer", actionMethod.getDeclaringClass().getSimpleName(), actionName, reponseTimers);    
-        reponseTimerContext.set(responseTimer.time());
-    }
-
-    private static Timer getTimer(String group, String type, String timerName, Map<String, Timer> timerRegistry) {
-        Timer responseTimer = timerRegistry.get(timerName);
-        
-        if (responseTimer == null) {
-            responseTimer =  getTimerFactory().createTimer(group, type, timerName);
-            timerRegistry.put(timerName, responseTimer);
-        }
-        
-        return responseTimer;
-    }
-
-    private static TimerFactory getTimerFactory() {
-        if (TIMER_FACTORY == null) {
-            initTimerFactory();
-        }
-        return TIMER_FACTORY;
-    }
-    
-    @Override
-    public void afterActionInvocation() {
-        Context responseTimerCtx = reponseTimerContext.get();
-        
-        if (responseTimerCtx != null)
-            responseTimerCtx.stop();
+    public static Timer getTimer(String namespaceToken, String ... namespaceTokens) {
+        String timerName = PLUGIN_REGISTRY.name(namespaceToken, namespaceTokens);
+        return PLUGIN_REGISTRY.timer(timerName);
     }
     
     @Override
@@ -112,7 +72,7 @@ public class MetricsPlugin extends PlayPlugin {
         int currentCallDepth = getCallDepth();
         //System.out.println(getIndentation(currentCallDepth) + "->Start::"+ timerName);
 //        System.out.println("Activating metrics timer " + timerName);
-        Timer timer = getTimer(group, type, timerName, methodTimers);
+        Timer timer = getTimer(group, type, timerName);
         LinkedList<Context> timerContexts =  methodTimerContexts.get();
         if (timerContexts == null) {
             timerContexts = new LinkedList<Context>();
@@ -146,5 +106,11 @@ public class MetricsPlugin extends PlayPlugin {
 
     public static MetricRegistry getRegistry() {
         return PLUGIN_REGISTRY;
+    }
+
+    public static void reset() {
+        for (String timerName: PLUGIN_REGISTRY.getTimers().keySet()) {
+            PLUGIN_REGISTRY.remove(timerName);
+        }
     }
 }

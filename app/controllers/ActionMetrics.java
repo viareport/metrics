@@ -15,12 +15,13 @@ import com.google.common.collect.Maps;
 
 
 public class ActionMetrics extends Controller {
+    
+    
     public static void index() {
        MetricRegistry registry = MetricsPlugin.getRegistry();
        HashMap<String, HashMap<String, List<String>>> controllers = new HashMap<String, HashMap<String, List<String>>>();
        for (Map.Entry<String, Timer> entry : registry.getTimers().entrySet()) {
-           String[] nameTokens = entry.getKey().split("\\.");
-           String controllerName = nameTokens[nameTokens.length - 1];
+           String controllerName = entry.getKey().substring(0, entry.getKey().lastIndexOf('.'));
            
            HashMap<String, List<String>> metrics = controllers.get(controllerName);
            if (metrics == null) {
@@ -33,10 +34,13 @@ public class ActionMetrics extends Controller {
            values.add(String.valueOf(TimeUnit.MILLISECONDS.convert((long) timer.getSnapshot().getMean(), TimeUnit.NANOSECONDS)) + " ms");
            values.add(String.valueOf(TimeUnit.MILLISECONDS.convert((long) timer.getSnapshot().getMin(), TimeUnit.NANOSECONDS)) + " ms");
            values.add(String.valueOf(TimeUnit.MILLISECONDS.convert((long) timer.getSnapshot().getMax(), TimeUnit.NANOSECONDS)) + " ms");
-           metrics.put(entry.getKey(), values);
-           
+           metrics.put(String.valueOf(entry.getKey().hashCode()), values);
            controllers.put(controllerName, metrics);
        }
        render(controllers);
+    }
+    
+    public static void reset() {
+        MetricsPlugin.reset();
     }
 }

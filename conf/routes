@@ -6,4 +6,5 @@
 # ~~~~
 
 GET     /metrics/                   ActionMetrics.index
+GET     /metrics/reset              ActionMetrics.reset
 GET     /metrics                    ActionMetrics.index

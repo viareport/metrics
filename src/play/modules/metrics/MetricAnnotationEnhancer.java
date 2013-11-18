@@ -5,6 +5,7 @@ import java.util.Arrays;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
+import play.Logger;
 
 public class MetricAnnotationEnhancer extends MetricsEnhancer {
 
@@ -14,6 +15,7 @@ public class MetricAnnotationEnhancer extends MetricsEnhancer {
         try {
             for (Object annotation : method.getAnnotations()) {
                 if (annotation instanceof MethodTimer) {
+                    Logger.info("Enhancing " + method.getLongName());
                     hasMethodTimer = true;
                     break;
                 }
