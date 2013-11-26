@@ -5,6 +5,9 @@
 #
 # ~~~~
 
-GET     /metrics/                   ActionMetrics.index
-GET     /metrics/reset              ActionMetrics.reset
-GET     /metrics                    ActionMetrics.index
+GET     /metrics/?                   ShowMetrics.index
+GET     /metrics/reset               Admin.reset
+GET     /metrics/{reporter}/stop     Admin.stop(reporter)
+GET     /metrics/{reporter}/start    Admin.start(reporter)
+GET     /metrics/{reporter}/enable   Admin.enable(reporter)
+GET     /metrics/{reporter}/disable  Admin.disable(reporter)

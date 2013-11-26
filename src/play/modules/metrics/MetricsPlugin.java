@@ -1,52 +1,19 @@
 package play.modules.metrics;
 
-import java.io.File;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
-
-import play.Play;
 import play.PlayPlugin;
 import play.classloading.ApplicationClasses.ApplicationClass;
 
-import com.codahale.metrics.CsvReporter;
-import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.Timer.Context;
 
 public class MetricsPlugin extends PlayPlugin {
-    public static class TimerFactory {
-
-        private String appNameSpace;
-
-        public TimerFactory(String appNameSpace) {
-            this.appNameSpace = appNameSpace;
-        }
-
-    }
 
     public static final MetricRegistry PLUGIN_REGISTRY = new MetricRegistry();
     protected static ThreadLocal<LinkedList<Context>> methodTimerContexts = new ThreadLocal<LinkedList<Context>>();
     protected static ThreadLocal<Integer> callDepth = new ThreadLocal<Integer>();
-
-    
-    @Override
-    public void onApplicationStart() {
-        JmxReporter reporter = JmxReporter.forRegistry(PLUGIN_REGISTRY).build();
-        final CsvReporter csvReporter = CsvReporter.forRegistry(PLUGIN_REGISTRY)
-            .formatFor(Locale.US)
-            .convertRatesTo(TimeUnit.SECONDS)
-            .convertDurationsTo(TimeUnit.MILLISECONDS)
-            .build(new File("metrics/"));
-        csvReporter.start(100, TimeUnit.MILLISECONDS);
-        reporter.start();
-        csvReporter.stop();
-    }
 
     public static Timer getTimer(String namespaceToken, String ... namespaceTokens) {
         String timerName = PLUGIN_REGISTRY.name(namespaceToken, namespaceTokens);

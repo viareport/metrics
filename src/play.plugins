@@ -1,1 +1,2 @@
 20000: play.modules.metrics.MetricsPlugin
+20001: play.modules.metrics.reporter.ReporterPlugin

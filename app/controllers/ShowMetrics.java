@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 
-public class ActionMetrics extends Controller {
+public class ShowMetrics extends Controller {
     
     
     public static void index() {
@@ -40,7 +40,4 @@ public class ActionMetrics extends Controller {
        render(controllers);
     }
     
-    public static void reset() {
-        MetricsPlugin.reset();
-    }
 }
