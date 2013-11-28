@@ -15,7 +15,7 @@ public class ReporterPlugin extends PlayPlugin {
 
     @Override
     public void onApplicationStart() {
-        register(new JMXReporterAdapter());
+        register(new JmxReporterAdapter());
         register(new CsvReporterAdapter());
         register(new Slf4jReporterAdapter());
         register(new GraphiteReporterAdapter());

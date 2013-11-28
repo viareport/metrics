@@ -5,12 +5,12 @@ import play.modules.metrics.MetricsPlugin;
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.JmxReporter.Builder;
 
-class JMXReporterAdapter extends ReporterAdapter<JmxReporter> {
+class JmxReporterAdapter extends ReporterAdapter<JmxReporter> {
 
     private Builder builder;
 
-    public JMXReporterAdapter() {
-        super(readBooleanFromConf(JMXReporterAdapter.class, ENABLED, false));
+    public JmxReporterAdapter() {
+        super(readBooleanFromConf(JmxReporter.class, ENABLED, false));
         this.builder = JmxReporter.forRegistry(MetricsPlugin.PLUGIN_REGISTRY);
     }
 
