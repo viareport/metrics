@@ -6,6 +6,7 @@
 # ~~~~
 
 GET     /metrics/?                   ShowMetrics.index
+GET     /metrics/csv                 ShowMetrics.csv
 GET     /metrics/reset               Admin.reset
 GET     /metrics/{reporter}/stop     Admin.stop(reporter)
 GET     /metrics/{reporter}/start    Admin.start(reporter)
